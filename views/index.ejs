@@ -70,7 +70,11 @@
           FB.ui(
             {
               method  : 'apprequests',
-              message : $(this).attr('data-message')
+              // message : $(this).attr('data-message')
+              title   : 'Job Recommendation',
+              message : 'Recommended you for a Painting Job',
+              new_style_message: true,
+              data    : 'job-123'
             },
             function (response) {
               // If response is null the user canceled the dialog
@@ -134,7 +138,7 @@
       <div>
         <h1>Welcome, <strong><%= user.name %></strong></h1>
         <p class="tagline">
-          This is your app
+          Happy to see you at
           <a href="<%= app.link %>" target="_top"><%= app.name %></a>
         </p>
 

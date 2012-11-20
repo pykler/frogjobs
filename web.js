@@ -1,9 +1,35 @@
-var async   = require('async')
-  , express = require('express')
-  , util    = require('util')
-  , path    = require('path')
-  , http    = require('http');
+var async     = require('async')
+  , express   = require('express')
+  , util      = require('util')
+  , path      = require('path')
+  , mongoose  = require('mongoose')
+  , http      = require('http');
 
+// connect to the db
+var db = mongoose.createConnection(process.env.MONGODB);
+
+
+// mongoose schema
+var userSchema = new mongoose.Schema({
+  fbid: String,
+  name: String,
+  times: {
+    created_at: { type: Date, default: Date.now },
+    last_login: { type: Date, default: Date.now }
+  }
+});
+var User = db.model('User', userSchema);
+
+var jobSchema = new mongoose.Schema({
+  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'userSchema' },
+  description: String,
+  category: String,
+  address: String,
+  end_time: { type: Date, default: Date.now },
+  wage: Number,
+  wage_type: {type: String, enum: ['hour', 'job']}
+});
+var Job = db.model('Job', jobSchema);
 
 // create an express webserver
 var app = express();
@@ -49,11 +75,24 @@ http.createServer(app).listen(app.get('port'), function(){
 function render_page(req, res) {
   req.facebook.app(function(app) {
     req.facebook.me(function(user) {
+      var userobj;
+      User.find({fbid: user.id}).exec(function() {
+      });
+      if (userobj === undefined) {
+        userobj = new User({
+          fbid: user.id,
+          name: user.name
+        });
+      } else {
+        userobj.times.last_login = Date.now();
+      }
+      userobj.save();
       res.render('index.ejs', {
         layout:    false,
         req:       req,
         app:       app,
-        user:      user
+        user:      user,
+        userobj:   userobj
       });
     });
   });
