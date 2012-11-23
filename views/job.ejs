@@ -1,0 +1,13 @@
+<li>
+  <div class="avatar" style="background-image: url(https://graph.facebook.com/<%= job._creator.fbid %>/picture?type=square)"></div>
+  <div class="text">
+    <span class="name"><%= job._creator.name %></span>
+    <span class="description"><%= job.description %></span>
+  </div>
+  <div class="bottom-line">
+    <a href="#" class="facebook-button apprequests sendRequest" data-message="referring you for a Job" data-jobid="<%= job._id %>">
+      <span class="plus">Refer A Friend</span>
+    </a>
+    <span class="offer">Offering <span class="wage"><%= job.wage %></span> per <span class="wage-type"><%= job.wage_type %></span></span></span>
+  </div>
+</li>

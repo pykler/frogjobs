@@ -3,6 +3,8 @@ var async     = require('async')
   , util      = require('util')
   , path      = require('path')
   , mongoose  = require('mongoose')
+  , io        = require('socket.io')
+  , path      = require('path')
   , http      = require('http');
 
 // connect to the db
@@ -13,6 +15,7 @@ var db = mongoose.createConnection(process.env.MONGODB);
 var userSchema = new mongoose.Schema({
   fbid: String,
   name: String,
+  facebook: mongoose.Schema.Types.Mixed,
   times: {
     created_at: { type: Date, default: Date.now },
     last_login: { type: Date, default: Date.now }
@@ -21,7 +24,7 @@ var userSchema = new mongoose.Schema({
 var User = db.model('User', userSchema);
 
 var jobSchema = new mongoose.Schema({
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'userSchema' },
+  _creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   description: String,
   category: String,
   address: String,
@@ -66,64 +69,62 @@ app.configure(function(){
     };
     next();
   });
+  app.use(function(req, res, next) {
+    req.facebook.app(function(app) {
+      req.facebook.me(function(user) {
+        // setting the locals up
+        res.locals.app = app;
+        res.locals.user = user;
+        // setting up userobj
+        if (user) {
+          User.findOne({fbid: user.id}).exec(function(err, userobj) {
+            if (userobj) {
+              userobj.times.last_login = Date.now();
+            } else {
+              userobj = new User({
+                fbid: user.id,
+                name: user.name,
+                facebook: user
+              });
+            }
+            res.locals.userobj = userobj;
+            userobj.save();
+            next();
+          });
+        } else {
+          next();
+        }
+      });
+    });
+  });
 });
 
-http.createServer(app).listen(app.get('port'), function(){
+var http_app = http.createServer(app);
+
+http_app.listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
 
+var sio = io.listen(http_app, { log: false });
+// sio.set('log level', 2); // remove the debug messages
+sio.sockets.on('connection', function (socket) {
+    console.log('A socket connected!');
+});
+
 function render_page(req, res) {
-  req.facebook.app(function(app) {
-    req.facebook.me(function(user) {
-      var userobj;
-      User.find({fbid: user.id}).exec(function() {
-      });
-      if (userobj === undefined) {
-        userobj = new User({
-          fbid: user.id,
-          name: user.name
-        });
-      } else {
-        userobj.times.last_login = Date.now();
-      }
-      userobj.save();
-      res.render('index.ejs', {
-        layout:    false,
-        req:       req,
-        app:       app,
-        user:      user,
-        userobj:   userobj
-      });
+  Job.find({"end_time" : {"$gte": new Date()}}).sort({"_id": -1}).populate('_creator').exec(function(err,jobs) {
+    res.render('index.ejs', {
+      layout:    false,
+      req:       req,
+      jobs:      jobs
     });
   });
 }
 
-function handle_facebook_request(req, res) {
+function homepage_request(req, res) {
   // if the user is logged in
   if (req.facebook.token) {
-
     async.parallel([
-      function(cb) {
-        // query 4 friends and send them to the socket for this socket id
-        req.facebook.get('/me/friends', { limit: 4 }, function(friends) {
-          req.friends = friends;
-          cb();
-        });
-      },
-      function(cb) {
-        // query 16 photos and send them to the socket for this socket id
-        req.facebook.get('/me/photos', { limit: 16 }, function(photos) {
-          req.photos = photos;
-          cb();
-        });
-      },
-      function(cb) {
-        // query 4 likes and send them to the socket for this socket id
-        req.facebook.get('/me/likes', { limit: 4 }, function(likes) {
-          req.likes = likes;
-          cb();
-        });
-      },
       function(cb) {
         // use fql to get a list of my friends that are using this app
         req.facebook.fql('SELECT uid, name, is_app_user, pic_square FROM user WHERE uid in (SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1', function(result) {
@@ -134,11 +135,72 @@ function handle_facebook_request(req, res) {
     ], function() {
       render_page(req, res);
     });
-
   } else {
     render_page(req, res);
   }
 }
 
-app.get('/', handle_facebook_request);
-app.post('/', handle_facebook_request);
+app.get('/', homepage_request);
+app.post('/', homepage_request);
+
+function post_job(req, res) {
+  var job = new Job({
+    _creator: res.locals.userobj,
+    description: req.param('description'),
+    wage: req.param('wage'),
+    wage_type: req.param('wage_type'),
+    end_time: new Date(req.param('end_time'))
+  });
+  job.save(function(err){
+    if (err) {
+      res.json({
+        'result': 'An error occured',
+        'identifier': 'error',
+        'error': null
+      });
+    } else {
+      Job.findOne({_id: job._id}).populate('_creator').exec(function(err, _job) {
+        if (!err) {
+          sio.sockets.emit('jobs', _job);
+        }
+      });
+      res.json({
+        'result': 'success',
+        'identifier': 'job',
+        'job': job
+      });
+    }
+  });
+}
+
+app.post('/post-job/', post_job);
+
+function get_jobs(req, res) {
+
+  Job.find()
+  .populate('_creator')
+  .exec(function(err, _jobs) {
+    if (err) {
+      res.json({
+        'result': 'An error occured',
+        'identifier': 'error',
+        'error': null
+      });
+    } else {
+      res.json({
+        'result': 'success',
+        'identifier': 'jobs',
+        'jobs': _jobs
+      });
+    }
+  });
+
+}
+
+app.get('/get-jobs/', get_jobs);
+
+function job_ejs(req, res) {
+  res.sendfile(path.resolve(__dirname, 'views/job.ejs'));
+}
+
+app.get('/job.ejs', job_ejs);
