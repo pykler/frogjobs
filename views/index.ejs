@@ -35,7 +35,7 @@
     <script type="text/javascript" src="/scripts/jquery.autosize.js"></script>
 
     <script type="text/javascript">
-      var socket = io.connect('https://127.0.0.1:5000');
+      var socket = io.connect('https://' + window.location.host + '/');
 
       function logResponse(response) {
         if (console && console.log) {
