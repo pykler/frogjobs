@@ -1,0 +1,90 @@
+/* =clearfix
+--------------------------------------------- */
+.clearfix:before,
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  overflow: hidden;
+}
+.clearfix:after {clear: both;}
+.clearfix {zoom: 1;} /* IE < 8 */
+
+/* =others
+--------------------------------------------- */
+.avatar {
+  width: 50px;
+  height: 50px;
+}
+
+#hero .avatar {
+  background-position: center 25%;
+  background-repeat: no-repeat;
+  background-size: 64px;
+  float: left;
+  margin-right: 18px;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+}
+
+.hero-unit {
+  padding: 30px;
+}
+
+.hero-unit .tagline {
+  font-size: 120%;
+}
+
+.wage:after {
+  content: '$';
+}
+
+.job-post > form .description {
+    float: left;
+}
+
+.job-post > form .description textarea, .mirroredText {
+    resize: none;
+    width: 465px;
+    line-height:20px;
+}
+
+.job-post > form .meta {
+    float: right;
+    width: 272px;
+}
+
+.job-post > form .meta .input-prepend {
+  float:left;
+}
+
+.job-post > form .meta select {
+  height: 24px;
+}
+
+.job-post > form .meta .row2{
+  margin-top: -10px;
+}
+.job-post > form .meta .row2 label{
+  width: 40px;
+  text-align: left;
+}
+.job-post > form .meta .row2 input{
+  width: 222px;
+}
+
+.job-post > form button {
+    float:right;
+}
+
+.job-post > ol {
+    margin: 0;
+    height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.job-post > ol > li {
+    padding: 10px;
+}

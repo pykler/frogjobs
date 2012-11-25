@@ -1,19 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
-
+    <meta charset="utf-8">
     <title><%= app.name %></title>
-    <link rel="stylesheet" href="stylesheets/flick/jquery-ui-1.9.1.custom.min.css" media="Screen" type="text/css" />
-    <link rel="stylesheet" href="stylesheets/jquery-ui-timepicker-addon.css" media="Screen" type="text/css" />
-    <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
-    <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
-
-    <!--[if IEMobile]>
-    <link rel="stylesheet" href="mobile.css" media="screen" type="text/css"  />
-    <![endif]-->
-
+    <meta name="description" content="get your odd jobs done or make some cash by posting on Frog Jobs.">
+    <meta name="author" content="Frog Jobs">
     <!-- These are Open Graph tags.  They add meta data to your  -->
     <!-- site that facebook uses when your content is shared     -->
     <!-- over facebook.  You should fill these tags in with      -->
@@ -26,6 +17,29 @@
     <meta property="og:site_name" content="<%= app.name %>" />
     <meta property="og:description" content="My first app" />
     <meta property="fb:app_id" content="<%= app.id %>" />
+
+
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- styles -->
+    <link rel="stylesheet" href="stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="stylesheets/flick/jquery-ui-1.9.1.custom.min.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="stylesheets/jquery-ui-timepicker-addon.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="stylesheets/main.css">
+
+    <style type="text/css">
+    body {padding: 20px 0;}
+    </style>
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
 
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/scripts/jquery.min.js"></script>
@@ -45,7 +59,7 @@
 
       socket.on('jobs', function (data) {
           console.log(data);
-          var html = new EJS({url: '/job.ejs'}).render({job: data});  
+          var html = new EJS({url: '/job.ejs'}).render({job: data});
           $('#jobs_container').prepend(html);
       });
 
@@ -117,19 +131,15 @@
         });
 
         // ui related things
+        $('textarea').autosize({className:'mirroredText', append: "\n"});
         $('input[type="datetime"]').datetimepicker({ minDate: 0});
       });
     </script>
 
-    <!--[if IE]>
-      <script type="text/javascript">
-        var tags = ['header', 'section'];
-        while(tags.length)
-          document.createElement(tags.pop());
-      </script>
-    <![endif]-->
   </head>
+
   <body>
+
     <div id="fb-root"></div>
     <script type="text/javascript">
       window.fbAsyncInit = function() {
@@ -165,78 +175,86 @@
       }(document, 'script', 'facebook-jssdk'));
     </script>
 
-    <header class="clearfix">
-      <% if (user) { %>
-      <p id="picture" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></p>
+    <div class="container canvas">
 
-      <div>
-        <h1>Welcome, <strong><%= user.name %></strong></h1>
-        <p class="tagline">
-          Happy to see you at
-          <a href="<%= app.link %>" target="_top"><%= app.name %></a>
-        </p>
+<!-- HERO
+================================================== -->
+<section id="hero">
+  <!-- Main hero unit for a primary marketing message or call to action -->
+  <div class="hero-unit">
+    <% if (!user) { %>
+    <p><b>Frog Jobs</b> is a coool ... Description goes here. It is currently in closed beta open to all Dalhousie Students only at the moment.</p>
+    <p><div class="fb-login-button" data-scope="">Join Now! &raquo;</div></p>
+    <% } else { %>
+    <div class="avatar" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></div>
+    <div>
+      <h2>Welcome, <strong><%= user.name %></strong></h2>
+      <p class="tagline">
+        Happy to see you at
+        <a href="<%= app.link %>" target="_top"><%= app.name %></a>
+      </p>
+    </div>
+    <% } %>
+  </div>
 
-        <div id="share-app">
-          <p>Share your app:</p>
-          <ul>
-            <li>
-              <a href="#" class="facebook-button" id="postToWall" data-url="<%= url() %>">
-                <span class="plus">Post to Wall</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="facebook-button speech-bubble" id="sendToFriends" data-url="<%= url() %>">
-                <span class="speech-bubble">Send Message</span>
-              </a>
-            </li>
-          </ul>
+ </section>
+
+<!-- Tables
+================================================== -->
+<section id="jobs">
+<% if (user) { %>
+  <ul class="pills">
+    <li class="active"><a href="#">Jobs</a></li>
+    <li><a href="#">My Jobs</a></li>
+    <li><a href="#">Pending Reviews</a></li>
+  </ul>
+
+  <div class="alert-message success" style="display:none;">
+    <a class="close" href="#">×</a>
+    <p><strong>Well done!</strong> You successfully posted a job.</p>
+  </div>
+
+  <div class="job-post">
+    <form class="clearfix" action="/post-job/" method="POST" onsubmit="return false;">
+      <div class="clearfix">
+        <div class="description">
+          <textarea placeholder="Job Description" name="description" class="autosize"></textarea>
         </div>
-      </div>
-      <% } else { %>
-      <div>
-        <h1>Welcome</h1>
-        <div class="fb-login-button" data-scope="user_likes,user_photos"></div>
-      </div>
-      <% } %>
-    </header>
-
-    <section class="clearfix">
-    <% if (user) { %>
-      <div class="job-post">
-        <form action="/post-job/" method="POST" onsubmit="return false;">
-          <div>
-            <div>
-              <textarea placeholder="Job Description" name="description" class="autosize"></textarea>
+        <div class="meta">
+          <div class="row1 clearfix">
+            <div class="input-prepend">
+              <span class="add-on">$</span>
+              <input class="medium" placeholder="Wage" name="wage" type="number" min="0" step="any">
             </div>
-            <div>
-              <div>
-                <input placeholder="Wage" name="wage" type="number">
-                <span>/</span>
-                <select name="wage_type">
-                  <option value="hour">Hour</option>
-                  <option value="job">Job</option>
-                </select>
-              </div>
-              <div>
-                <label>Due: </label><input name="end_time" type="datetime">
-              </div>
+            <div class="input-prepend">
+              <span class="add-on">/</span>
+              <select class="medium" name="wage_type">
+                <option value="hour">Hour</option>
+                <option value="job">Job</option>
+              </select>
             </div>
           </div>
-          <button type="submit" class="button">Post</button>
-        </form>
-        <ol id="jobs_container">
-        <% jobs.forEach(function(job) {%>
-          <% include job %>
-        <% }) %>
-        </ol>
+          <div class="row2">
+            <label>Due: </label><input name="end_time" type="datetime">
+          </div>
+        </div>
       </div>
-    <% } %>
-    </section>
-    
-    <footer class="clearfix">
+      <button type="submit" class="btn primary">Post</button>
+    </form>
+    <ol id="jobs_container">
+    <% jobs.forEach(function(job) {%>
+      <% include job %>
+    <% }) %>
+    </ol>
+  </div>
+<% } %>
+</section>
 
-    </footer>
+      <footer>
+        <p>&copy; Frog Jobs 2012</p>
+      </footer>
+
+    </div> <!-- /container -->
 
   </body>
 </html>
-
