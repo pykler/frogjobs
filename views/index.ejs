@@ -209,8 +209,14 @@
 
  </section>
 
+<% if (user) { %>
 <section>
-<% if (!userobj.allowed_access) { %>
+<% if (userobj && userobj.allowed_access) { %>
+  <div class="alert-message success">
+    <a class="close" href="#">×</a>
+    <p>You a member of the <strong>Dal</strong>'s network and have access to our closed beta.</p>
+  </div>
+<% } else { %>
   <div class="alert-message block-message error">
     <a class="close" href="#">×</a>
     <p><strong>Oh snap! It seems you are not part of the Dalhousie Network!</strong> if you are a Dalhousie Student you must first join the network in you Facebook profile before using this app. If you are not a Dalhousie Student please stay tuned as we will be expanding our userbase soon and may include you!</p>
@@ -218,14 +224,9 @@
       <a class="btn small" target="_blank" href="https://www.facebook.com/settings?tab=account&section=networks">Join Dal's network</a>
     </div>
   </div>
-<% } else { %>
-  <div class="alert-message success">
-    <a class="close" href="#">×</a>
-    <p>You a member of the <strong>Dal</strong>'s network and have access to our closed beta.</p>
-  </div>
 <% } %>
 </section>
-
+<% } %>
 
 <!-- Tables
 ================================================== -->

@@ -88,6 +88,7 @@ app.configure(function(){
         // setting the locals up
         res.locals.app = app;
         res.locals.user = user;
+        res.locals.userobj = null;
         // setting up userobj
         if (user) {
           User.findOne({fbid: user.id}).exec(function(err, userobj) {
