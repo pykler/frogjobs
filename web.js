@@ -18,8 +18,8 @@ var userSchema = new mongoose.Schema({
   facebook: mongoose.Schema.Types.Mixed,
   facebook_affiliations: mongoose.Schema.Types.Mixed,
   allowed_access: Boolean,
-  job_applied : [{ type: Schema.Types.ObjectId, ref: 'Job' }],
-  job_referred : [{ type: Schema.Types.ObjectId, ref: 'Refer' }],
+  job_applied : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Job' }],
+  job_referred : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Refer' }],
   times: {
     created_at: { type: Date, default: Date.now },
     last_login: { type: Date, default: Date.now }
@@ -35,7 +35,7 @@ var jobSchema = new mongoose.Schema({
   end_time: { type: Date, default: Date.now },
   wage: Number,
   wage_type: {type: String, enum: ['hour', 'job']},
-  users_applied: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+  users_applied: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 var Job = db.model('Job', jobSchema);
 
