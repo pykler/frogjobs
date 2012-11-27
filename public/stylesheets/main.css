@@ -36,8 +36,16 @@
   font-size: 120%;
 }
 
-.wage:after {
+.wage:before {
   content: '$';
+}
+
+.job-post > form {
+    border: 1px solid #B4BBCD;
+}
+
+.job-post > form > div:first-child {
+    margin-bottom: 4px;
 }
 
 .job-post > form .description {
@@ -80,11 +88,35 @@
 
 .job-post > ol {
     margin: 0;
-    height: 300px;
+    height: 420px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .job-post > ol > li {
-    padding: 10px;
+    padding: 10px 10px 10px 0;
+    border-bottom: 1px solid #B4BBCD;
+}
+
+.job-post > ol > li:last-child {
+    border-bottom: none;
+}
+
+.job-post > ol > li .avatar {
+  float: left;
+  margin: 0 10px 5px 0;
+}
+
+.job-post > ol > li .bottom-line {
+  margin-top: 5px;
+}
+
+.job-post > ol > li .offer {
+  float: right;
+  font-size: larger;
+}
+
+.job-post > ol > li .offer .wage,
+.job-post > ol > li .offer .wage-type {
+  font-weight: bolder;
 }

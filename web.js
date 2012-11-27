@@ -16,6 +16,10 @@ var userSchema = new mongoose.Schema({
   fbid: String,
   name: String,
   facebook: mongoose.Schema.Types.Mixed,
+  facebook_affiliations: mongoose.Schema.Types.Mixed,
+  allowed_access: Boolean,
+  job_applied : [{ type: Schema.Types.ObjectId, ref: 'Job' }],
+  job_referred : [{ type: Schema.Types.ObjectId, ref: 'Refer' }],
   times: {
     created_at: { type: Date, default: Date.now },
     last_login: { type: Date, default: Date.now }
@@ -30,9 +34,18 @@ var jobSchema = new mongoose.Schema({
   address: String,
   end_time: { type: Date, default: Date.now },
   wage: Number,
-  wage_type: {type: String, enum: ['hour', 'job']}
+  wage_type: {type: String, enum: ['hour', 'job']},
+  users_applied: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 });
 var Job = db.model('Job', jobSchema);
+
+var referSchema = new mongoose.Schema({
+  referrer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  referred: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  job: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' }
+});
+var Refer = db.model('Refer', referSchema);
+
 
 // create an express webserver
 var app = express();
@@ -80,6 +93,7 @@ app.configure(function(){
           User.findOne({fbid: user.id}).exec(function(err, userobj) {
             if (userobj) {
               userobj.times.last_login = Date.now();
+              userobj.facebook = user;
             } else {
               userobj = new User({
                 fbid: user.id,
@@ -121,14 +135,37 @@ function render_page(req, res) {
   });
 }
 
+var DALHOUSIE_NID=16778165;
+function set_allowed_access(user) {
+  user.allowed_access = false;
+  user.facebook_affiliations.affiliations.forEach(function(network) {
+    if (network.nid = DALHOUSIE_NID) {
+      user.allowed_access = true;
+    }
+  });
+}
+
 function homepage_request(req, res) {
   // if the user is logged in
   if (req.facebook.token) {
     async.parallel([
-      function(cb) {
+//       function(cb) {
+//         // use fql to get a list of my friends that are using this app
+//         req.facebook.fql('SELECT uid, name, is_app_user, pic_square FROM user WHERE uid in (SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1', function(result) {
+//           req.friends_using_app = result;
+//           cb();
+//         });
+//       },
+        function(cb) {
         // use fql to get a list of my friends that are using this app
-        req.facebook.fql('SELECT uid, name, is_app_user, pic_square FROM user WHERE uid in (SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1', function(result) {
-          req.friends_using_app = result;
+        req.facebook.fql('SELECT affiliations FROM user WHERE uid = me()', function(result) {
+          if (result.length) {
+            res.locals.userobj.facebook_affiliations = result[0];
+          } else {
+            res.locals.userobj.facebook_affiliations = {affiliations: []};
+          }
+          set_allowed_access(res.locals.userobj);
+          res.locals.userobj.save();
           cb();
         });
       }

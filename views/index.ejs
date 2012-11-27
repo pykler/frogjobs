@@ -47,6 +47,7 @@
     <script type="text/javascript" src="/scripts/jquery-ui-1.9.1.custom.min.js"></script>
     <script type="text/javascript" src="/scripts/jquery-ui-timepicker-addon.js"></script>
     <script type="text/javascript" src="/scripts/jquery.autosize.js"></script>
+    <script type="text/javascript" src="/scripts/bootstrap-alerts.js"></script>
 
     <script type="text/javascript">
       var socket = io.connect('https://' + window.location.host + '/');
@@ -116,9 +117,9 @@
         // Posting a Job
         $('.job-post button').click(function() {
             var $this = $(this);
-            var $form = $this.parent();
+            var $form = $this.parents("form");
             var data = $form.serialize();
-            console.log(data);
+            // console.log(data);
             var action = $form.attr('action');
             $.ajax({
               type: "POST",
@@ -133,6 +134,7 @@
         // ui related things
         $('textarea').autosize({className:'mirroredText', append: "\n"});
         $('input[type="datetime"]').datetimepicker({ minDate: 0});
+        $('.alert-message').alert();
       });
     </script>
 
@@ -162,7 +164,8 @@
           window.location = window.location;
         });
 
-        FB.Canvas.setAutoGrow();
+        // FB.Canvas.setAutoGrow();
+        FB.Canvas.setSize();
       };
 
       // Load the SDK Asynchronously
@@ -191,7 +194,7 @@
     <p>
     Together we create a more helpful community.<br/>
     <small>This community is currently in closed beta open to all Dalhousie Students only at the moment.</small></p>
-    <p><div class="fb-login-button" data-scope="">Join Now! &raquo;</div></p>
+    <p><div class="fb-login-button" data-scope="user_about_me">Join Now! &raquo;</div></p>
     <% } else { %>
     <div class="avatar" style="background-image: url(https://graph.facebook.com/<%= user.id %>/picture?type=normal)"></div>
     <div>
@@ -205,6 +208,24 @@
   </div>
 
  </section>
+
+<section>
+<% if (!userobj.allowed_access) { %>
+  <div class="alert-message block-message error">
+    <a class="close" href="#">×</a>
+    <p><strong>Oh snap! It seems you are not part of the Dalhousie Network!</strong> if you are a Dalhousie Student you must first join the network in you Facebook profile before using this app. If you are not a Dalhousie Student please stay tuned as we will be expanding our userbase soon and may include you!</p>
+    <div class="alert-actions">
+      <a class="btn small" target="_blank" href="https://www.facebook.com/settings?tab=account&section=networks">Join Dal's network</a>
+    </div>
+  </div>
+<% } else { %>
+  <div class="alert-message success">
+    <a class="close" href="#">×</a>
+    <p>You a member of the <strong>Dal</strong>'s network and have access to our closed beta.</p>
+  </div>
+<% } %>
+</section>
+
 
 <!-- Tables
 ================================================== -->
@@ -246,7 +267,9 @@
           </div>
         </div>
       </div>
-      <button type="submit" class="btn primary">Post</button>
+      <div class="clearfix" style="background-color: #f2f2f2; padding: 5px; margin-bottom:0;">
+        <button type="submit" class="btn primary">Post</button>
+      </div>
     </form>
     <ol id="jobs_container">
     <% jobs.forEach(function(job) {%>
