@@ -107,6 +107,13 @@
   margin: 0 10px 5px 0;
 }
 
+.job-post > ol > li .name {
+  display: block;
+  font-size:larger;
+}
+
+
+
 .job-post > ol > li .bottom-line {
   margin-top: 5px;
 }
