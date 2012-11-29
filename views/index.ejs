@@ -52,6 +52,11 @@
     <script type="text/javascript">
       var socket = io.connect('https://' + window.location.host + '/');
 
+      var userobj;
+      <% if (userobj) { %>
+        userobj = { fbid: "<%= userobj.fbid %>" };
+      <% } %>
+
       function logResponse(response) {
         if (console && console.log) {
           console.log('The response was', response);
@@ -209,7 +214,8 @@
 
  </section>
 
-<% if (user) { %>
+ <!-- disable dal notification message for now -->
+<% if (false && user) { %>
 <section>
 <% if (userobj && userobj.allowed_access) { %>
   <div class="alert-message success">
@@ -232,11 +238,18 @@
 ================================================== -->
 <section id="jobs">
 <% if (user) { %>
-  <ul class="pills">
+<div class="clearfix">
+  <ul class="pills" style="float:left;">
     <li class="active"><a href="#">Jobs</a></li>
     <li><a href="#">My Jobs</a></li>
     <li><a href="#">Pending Reviews</a></li>
   </ul>
+  <button class="btn small info" style="float:right;height:24px;">Go</button>
+  <div class="input-prepend" style="float:right;">
+    <span class="add-on">Search</span>
+    <input class="medium" id="prependedInput" name="prependedInput" size="16" type="text">
+  </div>
+</div>
 
   <div class="alert-message success" style="display:none;">
     <a class="close" href="#">×</a>

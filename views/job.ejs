@@ -7,7 +7,11 @@
   </div>
 </div>
   <div class="bottom-line">
-    <button class="btn small">Apply</button>
+    <% if (userobj.fbid == job._creator.fbid) { %>
+        <button class="btn small success">Bump it up!</button>
+    <% } else { %>
+        <button class="btn small">Apply</button>
+    <% } %>
     <a href="#" class="btn primary small facebook-button apprequests sendRequest" data-message="referring you for a Job" data-jobid="<%= job._id %>">
       Refer A Friend
     </a>
